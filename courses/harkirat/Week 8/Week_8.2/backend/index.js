@@ -6,10 +6,15 @@ import jwt from "jsonwebtoken"
 import { usercheck } from "./middlewares/user.middleware.js"
 import cookieParser from "cookie-parser"
 import { UserPayment } from "./model/payment.model.js"
+import cors from "cors"
 const app = express()
 
 mongoose.connect("mongodb://localhost:27017/Paytm")
 app.use(express.json())
+app.use(cors({
+    origin: 'http://localhost:5173', // Replace with your frontend origin
+    credentials: true,
+}))
 app.use(cookieParser())
 
 app.post("/createuser", async (req, res)=>{
@@ -21,7 +26,7 @@ app.post("/createuser", async (req, res)=>{
     })
     
 
-    res.status(400).json({
+    res.status(200).json({
         "msg": "user created successfully",
         user
     })
@@ -43,10 +48,11 @@ app.post("/login", async (req, res)=>{
         id:user._id
     }, "test")
 
-    res.status(400).cookie("usertoken",usertoken, {
+    res.status(200).cookie("usertoken",usertoken, {
         httpOnly:true
     }).json({
-        "msg": "User Signed in successfully"
+        "msg": "User Signed in successfully",
+        user
     })
 
 
@@ -54,7 +60,7 @@ app.post("/login", async (req, res)=>{
 
 
 app.post("/homepage", usercheck, (req, res)=>{
-    res.status(400).json({
+    res.status(200).json({
         msg:"User hai"
     })
 })
@@ -92,7 +98,7 @@ app.get("/allusers", usercheck,async (req, res)=>{
     
     const user = await User.find()
 
-    res.status(400).json({
+    res.status(200).json({
         user
     })
 })
