@@ -9,13 +9,15 @@ import { UserPayment } from "./model/payment.model.js"
 import cors from "cors"
 const app = express()
 
-mongoose.connect("mongodb://localhost:27017/Paytm")
 app.use(express.json())
+app.use(cookieParser())
+
 app.use(cors({
     origin: 'http://localhost:5173', // Replace with your frontend origin
     credentials: true,
 }))
-app.use(cookieParser())
+mongoose.connect("mongodb://localhost:27017/Paytm")
+
 
 app.post("/createuser", async (req, res)=>{
     const {email, password} = req.body
@@ -26,8 +28,15 @@ app.post("/createuser", async (req, res)=>{
     })
     
 
-    res.status(200).json({
-        "msg": "user created successfully",
+    const usertoken = jwt.sign({
+        id:user._id
+    }, "test")
+
+    res.status(200).cookie("usertoken",usertoken, {
+        httpOnly:true,
+        
+    }).json({
+        "msg": "User created",
         user
     })
 
@@ -49,10 +58,12 @@ app.post("/login", async (req, res)=>{
     }, "test")
 
     res.status(200).cookie("usertoken",usertoken, {
-        httpOnly:true
+        httpOnly:true,
+       
     }).json({
         "msg": "User Signed in successfully",
-        user
+        user,
+        usertoken
     })
 
 
@@ -69,11 +80,11 @@ app.post("/homepage", usercheck, (req, res)=>{
 app.post("/transfer", usercheck, async (req, res)=>{
     
     const userid = req.user
-    const {to, amount} = req.body
+    const {to, amount, from} = req.body
 
     const newPayment = await UserPayment.create({
-        to:to,
-        from:userid,
+        to,
+        from,
         transferamount:amount
     })
 
@@ -94,9 +105,19 @@ app.post("/transfer", usercheck, async (req, res)=>{
 })
 
 
-app.get("/allusers", usercheck,async (req, res)=>{
+app.get("/allusers",usercheck,async (req, res)=>{
     
     const user = await User.find()
+
+    res.status(200).json({
+        user
+    })
+})
+
+app.get(`/user/:id`,async (req, res)=>{
+    const userid =  req.params.id 
+
+    const user = await User.findById(userid)
 
     res.status(200).json({
         user

@@ -3,18 +3,22 @@ import Navbar from "./components/Navbar";
 import Homepage from "./components/Homepage";
 import Signup from "./components/Signup";
 import Signin from "./components/Signin";
+import { RecoilRoot } from "recoil";
 
 function App() {
   return (
     <>
+    <RecoilRoot>
+
       <BrowserRouter>
-         <Navbar/>
+        <Navbar />
         <Routes>
-          <Route path="/" element={<Homepage/>}/>
-          <Route path="/signup" element={<Signup/>}/>
-          <Route path="/signin" element={<Signin/>}/>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<Signin />} />
         </Routes>
       </BrowserRouter>
+    </RecoilRoot>
     </>
   );
 }
